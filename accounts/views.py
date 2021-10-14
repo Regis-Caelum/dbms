@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 import firebase_admin
 from firebase_admin import credentials, firestore
 from .models import patients
+from django.contrib.auth.decorators import login_required
 
 cred = credentials.Certificate("/home/samsenpai/Desktop/RCOEM/V/DBMS/project/dbms/cred/dbms-cb3e4-firebase-adminsdk-g8ee3-bb05101dc0.json")
 firebase_admin.initialize_app(cred)
@@ -24,10 +25,12 @@ def login_view(request):
     login(request, user)
     return redirect('DoctorHome')
 
+@login_required(login_url='/login')
 def logout_view(request):
     logout(request)
     return redirect('Home')
 
+@login_required(login_url='/login')
 def doctor_home(request):
     collection = db.collection(request.user.username)
     docs = collection.stream()
@@ -37,7 +40,7 @@ def doctor_home(request):
     for doc in docs:
         temp = doc.to_dict()
         if temp['active'] == True:
-            patient.append(patients(doc.id, temp['Name']))
+            patient.append(patients(doc_id=doc.id, name=temp['Name'],age=None,dob=None,address=None,disease=None,prev=None))
     
     context = {
         'patients':patient,
@@ -45,6 +48,7 @@ def doctor_home(request):
 
     return render(request, 'doctor_home.html',context=context)
 
+@login_required(login_url='/login')
 def releasepatient(request):
     if request.method == 'POST':
         collection = db.collection(request.user.username)
@@ -61,14 +65,15 @@ def releasepatient(request):
                 }
                 temp = db.collection(request.user.username).document(doc_id).update(data)
             elif temp['active'] == True:
-                patient.append(patients(doc_id, temp['Name']))
+                patient.append(patients(doc_id=doc_id, name=temp['Name'],age=None,dob=None,address=None,disease=None,prev=None))
         
         context = {
             'patients':patient,
         }
 
         return render(request, 'doctor_home.html',context=context)
-
+        
+@login_required(login_url='/login')
 def addpatient(request):
     name = request.POST['name']
     age = request.POST['age']
@@ -91,8 +96,15 @@ def addpatient(request):
     return redirect('DoctorHome')
 
 
-
+@login_required(login_url='/login')
 def patient_profile(request):
     if request.method == 'POST':
         doc = db.collection(request.user.username).document(request.POST['doc_id'])
-        return render(request, 'patient_profile.html', context=doc.to_dict())
+        d = doc.get()
+        d = d.to_dict()
+        d = patients(doc_id=doc.id,name=d["Name"], age=d["Age"], dob=d["Date of Birth"], address=d["Address"], disease=d["Disease"], prev=d["Patient medical history"])
+        context = {
+            'patient': d,
+        }
+        return render(request, 'patient_profile.html', context=context)
+
