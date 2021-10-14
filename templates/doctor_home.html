@@ -1,0 +1,161 @@
+{% extends 'nav_base.html' %} {% block body %}
+
+<div class="d-flex flex-row-reverse">
+  <button
+    type="button"
+    class="btn btn-primary"
+    data-bs-toggle="modal"
+    data-bs-target="#exampleModal"
+  >
+    Add Patient
+  </button>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1">
+  <div class="modal-dialog">
+  <form action="addpatient" method="post">
+  {% csrf_token %}
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default"
+              >Name</span
+            >
+            <input
+              type="text"
+              class="form-control"
+              aria-label="Sizing example input"
+              aria-describedby="inputGroup-sizing-default"
+              name="name"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default"
+              >Age</span
+            >
+            <input
+              type="text"
+              class="form-control"
+              aria-label="Sizing example input"
+              aria-describedby="inputGroup-sizing-default"
+              name="age"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default"
+              >Date of Birth</span
+            >
+            <input
+              type="text"
+              class="form-control"
+              aria-label="Sizing example input"
+              aria-describedby="inputGroup-sizing-default"
+              name="dob"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default"
+              >Address</span
+            >
+            <input
+              type="text"
+              class="form-control"
+              aria-label="Sizing example input"
+              aria-describedby="inputGroup-sizing-default"
+              name="address"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default"
+              >Disease</span
+            >
+            <input
+              type="text"
+              class="form-control"
+              aria-label="Sizing example input"
+              aria-describedby="inputGroup-sizing-default"
+              name="disease"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label"
+              >Mention previous health history</label
+            >
+            <textarea
+              class="form-control"
+              id="exampleFormControlTextarea1"
+              rows="3"
+              name="prev"
+            ></textarea>
+          </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>View Data</th>
+      <th>Release Patient</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in patients %}
+    <tr>
+      <td>{{p.doc_id}}</td>
+      <td>{{p.name}}</td>
+      <td>
+        <form action="patient_profile" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="doc_id" value="{{p.doc_id}}" />
+          <input
+            class="select1 select2"
+            style="border-radius: 10px; color: black"
+            type="submit"
+            value="View Data"
+          />
+        </form>
+      </td>
+      <td>
+        <form action="release" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="doc_id" value="{{p.doc_id}}" />
+          <input
+            class="select1 select2"
+            style="border-radius: 10px; color: black"
+            type="submit"
+            value="Release"
+          />
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock body %}
